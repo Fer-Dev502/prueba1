@@ -293,13 +293,19 @@
 
     // Mostrar datos en tabla
     function cargarProductos() {
-      fetch(API_URL)
-        .then(res => res.json())
-        .then(data => {
-          productos = data.slice(1); // Saltar la primera fila (encabezados)
-          mostrarProductos(productos);
-        })
-        .catch(err => console.error("Error al cargar datos:", err));
+      // Cambia tus llamadas fetch así:
+fetch(API_URL, {
+  method: 'POST',
+  mode: 'no-cors', // ← Añade esta línea
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  },
+  body: new URLSearchParams({
+    accion: 'crear',
+    producto: producto,
+    precio: precio
+  })
+})
     }
 
     function mostrarProductos(listaProductos) {
