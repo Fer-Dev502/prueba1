@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tienda - Gestor de Precios</title>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #f94144;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+      color: var(--dark);
+    }
+    
+    h1 {
+      color: var(--secondary);
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: var(--secondary);
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border 0.3s;
+      box-sizing: border-box;
+    }
+    
+    input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+    
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-right: 10px;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary);
+    }
+    
+    .btn-warning {
+      background-color: var(--warning);
+      color: white;
+    }
+    
+    .btn-warning:hover {
+      background-color: #e07d0e;
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #d62a2d;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    
+    th {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 500;
+    }
+    
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 5px;
+    }
+    
+    .search-container {
+      margin-bottom: 20px;
+    }
+    
+    .search-input {
+      width: 70%;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    
+    .search-btn {
+      width: 25%;
+      display: inline-block;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .edit-form {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛍️ Gestor de Precios</h1>
+  
+  <div class="card">
+    <!-- Formulario para agregar productos -->
+    <form id="formProducto">
+      <h3>➕ Agregar Nuevo Producto</h3>
+      <div class="form-group">
+        <label for="producto">Nombre del Producto</label>
+        <input type="text" id="producto" placeholder="Ej: Arroz, Leche, Pan..." required>
+      </div>
+      <div class="form-group">
+        <label for="precio">Precio ($)</label>
+        <input type="number" id="precio" placeholder="Ej: 1500" min="0" step="0.01" required>
+      </div>
+      <button type="submit" class="btn-primary">Guardar Producto</button>
+    </form>
+  </div>
+  
+  <div class="card">
+    <!-- Buscador de productos -->
+    <div class="search-container">
+      <h3>🔍 Buscar Producto</h3>
+      <input type="text" id="buscarProducto" placeholder="Nombre del producto..." class="search-input">
+      <button id="btnBuscar" class="btn-primary search-btn">Buscar</button>
+      <button id="btnMostrarTodos" class="btn-warning search-btn">Mostrar Todos</button>
+    </div>
+    
+    <!-- Formulario de edición (oculto inicialmente) -->
+    <form id="formEditar" class="edit-form hidden">
+      <h3>✏️ Editar Producto</h3>
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label for="editProducto">Nombre del Producto</label>
+        <input type="text" id="editProducto" required>
+      </div>
+      <div class="form-group">
+        <label for="editPrecio">Precio ($)</label>
+        <input type="number" id="editPrecio" min="0" step="0.01" required>
+      </div>
+      <button type="submit" class="btn-primary">Guardar Cambios</button>
+      <button type="button" id="btnCancelarEdicion" class="btn-danger">Cancelar</button>
+    </form>
+    
+    <!-- Tabla de productos -->
+    <h3>📋 Lista de Productos</h3>
+    <table id="tablaProductos">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Precio ($)</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Conexión con Google Sheets -->
+  <script>
+    // 🔴 Reemplaza con tu URL de Apps Script
+    const API_URL = "https://script.google.com/macros/s/AKfycbz1t7LSgG7uTCUmJJfsjjsH_wq4KgDuu1GniXwTWmdyYNXLVkYFks24n1R85MMAC0S8/exec";
+    let productos = [];
+
+    // Cargar datos al iniciar
+    document.addEventListener('DOMContentLoaded', cargarProductos);
+
+    // Enviar datos al formulario principal
+    document.getElementById("formProducto").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const producto = document.getElementById("producto").value;
+      const precio = document.getElementById("precio").value;
+
+      fetch(`${API_URL}?accion=crear&producto=${encodeURIComponent(producto)}&precio=${precio}`, { 
+        method: 'POST' 
+      })
+        .then(res => res.text())
+        .then(msg => {
+          alert(msg);
+          document.getElementById("formProducto").reset();
+          cargarProductos();
+        })
+        .catch(err => alert("❌ Error: " + err));
+    });
+
+    // Buscar productos
+    document.getElementById("btnBuscar").addEventListener("click", buscarProducto);
+    document.getElementById("buscarProducto").addEventListener("keypress", (e) => {
+      if (e.key === 'Enter') buscarProducto();
+    });
+
+    function buscarProducto() {
+      const busqueda = document.getElementById("buscarProducto").value.toLowerCase();
+      if (!busqueda) return;
+      
+      const resultados = productos.filter(p => 
+        p[1].toLowerCase().includes(busqueda)
+      ).sort((a, b) => a[1].localeCompare(b[1]));
+      
+      mostrarProductos(resultados);
+    }
+
+    // Mostrar todos los productos
+    document.getElementById("btnMostrarTodos").addEventListener("click", () => {
+      document.getElementById("buscarProducto").value = "";
+      mostrarProductos(productos);
+    });
+
+    // Cancelar edición
+    document.getElementById("btnCancelarEdicion").addEventListener("click", () => {
+      document.getElementById("formEditar").classList.add("hidden");
+    });
+
+    // Enviar formulario de edición
+    document.getElementById("formEditar").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const id = document.getElementById("editId").value;
+      const producto = document.getElementById("editProducto").value;
+      const precio = document.getElementById("editPrecio").value;
+
+      fetch(`${API_URL}?accion=editar&id=${id}&producto=${encodeURIComponent(producto)}&precio=${precio}`, { 
+        method: 'POST' 
+      })
+        .then(res => res.text())
+        .then(msg => {
+          alert(msg);
+          document.getElementById("formEditar").classList.add("hidden");
+          cargarProductos();
+        })
+        .catch(err => alert("❌ Error: " + err));
+    });
+
+    // Mostrar datos en tabla
+    function cargarProductos() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          productos = data.slice(1); // Saltar la primera fila (encabezados)
+          mostrarProductos(productos);
+        })
+        .catch(err => console.error("Error al cargar datos:", err));
+    }
+
+    function mostrarProductos(listaProductos) {
+      const tbody = document.querySelector("#tablaProductos tbody");
+      tbody.innerHTML = "";
+      
+      listaProductos.forEach((row, index) => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${row[1]}</td>
+            <td>$${parseFloat(row[2]).toFixed(2)}</td>
+            <td class="actions">
+              <button onclick="editarProducto(${index})" class="btn-warning">Editar</button>
+              <button onclick="eliminarProducto(${index})" class="btn-danger">Eliminar</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    // Funciones globales para los botones de acción
+    window.editarProducto = function(index) {
+      const producto = productos[index];
+      document.getElementById("editId").value = index;
+      document.getElementById("editProducto").value = producto[1];
+      document.getElementById("editPrecio").value = producto[2];
+      document.getElementById("formEditar").classList.remove("hidden");
+      document.getElementById("formEditar").scrollIntoView({ behavior: 'smooth' });
+    };
+
+    window.eliminarProducto = function(index) {
+      if (!confirm("¿Estás seguro de eliminar este producto?")) return;
+      
+      const producto = productos[index];
+      fetch(`${API_URL}?accion=eliminar&producto=${encodeURIComponent(producto[1])}`, { 
+        method: 'POST' 
+      })
+        .then(res => res.text())
+        .then(msg => {
+          alert(msg);
+          cargarProductos();
+        })
+        .catch(err => alert("❌ Error: " + err));
+    };
+  </script>
+</body>
+</html>
